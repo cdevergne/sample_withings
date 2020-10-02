@@ -20,4 +20,6 @@ class FakeDataRepository : ImageRepository {
 
     override fun getAllImage(): Single<List<Image>> = Single.just(datas)
 
+    override fun getImageWithFilter(filter: String?) = Single.just(datas)
+
 }

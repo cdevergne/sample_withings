@@ -3,11 +3,8 @@ package com.devergne.withings.ui.list
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.devergne.withings.common.RxImmediateSchedulerRule
 import com.devergne.withings.data.repository.ImageRepository
-import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
-import io.mockk.verify
 import io.reactivex.Single
 import org.junit.*
 import org.junit.Assert.assertEquals
@@ -31,21 +28,24 @@ class ListViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
+        every { dataRepository.getImageWithFilter(any()) } returns Single.just(listOf())
         listViewModel = ListViewModel(dataRepository)
+        clearMocks(dataRepository)
     }
 
     @Test
     fun `test refresh escalate call to repository`() {
-        every { dataRepository.getAllImage() } returns Single.just(listOf())
+
+        every { dataRepository.getImageWithFilter(any()) } returns Single.just(listOf())
 
         listViewModel.refreshList()
 
-        verify(exactly = 1) { dataRepository.getAllImage() }
+        verify(exactly = 1) { dataRepository.getImageWithFilter(any()) }
     }
 
     @Test
     fun `test wrapping model in viewModel`() {
-        every { dataRepository.getAllImage() } returns Single.just(
+        every { dataRepository.getImageWithFilter(any()) } returns Single.just(
             listOf(
                 mockk(),
                 mockk(),
@@ -60,7 +60,7 @@ class ListViewModelTest {
 
     @Test
     fun `test error status`() {
-        every { dataRepository.getAllImage() } returns Single.create { it.onError(RuntimeException())}
+        every { dataRepository.getImageWithFilter(any()) } returns Single.create { it.onError(RuntimeException())}
 
         listViewModel.refreshList()
 
@@ -69,7 +69,7 @@ class ListViewModelTest {
 
     @Test
     fun `test display status`() {
-        every { dataRepository.getAllImage() } returns Single.just(
+        every { dataRepository.getImageWithFilter(any()) } returns Single.just(
             listOf(
                 mockk(),
                 mockk(),

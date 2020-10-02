@@ -14,7 +14,7 @@ class ListFragment : Fragment() {
 
     private val listViewModel : ListViewModel by viewModel()
 
-    private val dataSelectionCallback = object : DataSelectionCallback {
+    private val dataSelectionCallback = object : ImageSelectionCallback {
         override fun onDataSelected(image: Image) {
             (requireActivity() as MainActivity).navigateToDetail(image)
         }
@@ -27,16 +27,11 @@ class ListFragment : Fragment() {
     ): View? {
         val listFragmentBinding = ListFragmentBinding.inflate(layoutInflater)
 
-        listViewModel.dataSelectionCallback = dataSelectionCallback
+        listViewModel.imageSelectionCallback = dataSelectionCallback
 
         listFragmentBinding.lifecycleOwner = this
         listFragmentBinding.viewModel = listViewModel
 
         return listFragmentBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        listViewModel.refreshList()
     }
 }

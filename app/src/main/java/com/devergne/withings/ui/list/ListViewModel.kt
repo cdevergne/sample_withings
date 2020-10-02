@@ -16,7 +16,7 @@ import timber.log.Timber
 class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
 
     val itemBinding =
-        ItemBinding.of<ImageViewModel>(BR.viewModel, R.layout.image_row_item)
+        ItemBinding.of<ImageViewModel>(BR.viewModel, R.layout.image_item)
 
     private val _dataViewModelList = MutableLiveData<List<ImageViewModel>>()
     val dataViewModelList: LiveData<List<ImageViewModel>>
@@ -29,23 +29,29 @@ class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
 
     private var disposable: Disposable? = null
 
-    var dataSelectionCallback: DataSelectionCallback? = null
-    private val localDataSelectionCallback = object : DataSelectionCallback {
+    var imageSelectionCallback: ImageSelectionCallback? = null
+    private val localDataSelectionCallback = object : ImageSelectionCallback {
         override fun onDataSelected(image: Image) {
-            dataSelectionCallback?.onDataSelected(image)
+            imageSelectionCallback?.onDataSelected(image)
         }
     }
+
+    val searchText = MutableLiveData<String>()
 
     override fun onCleared() {
         super.onCleared()
         disposable?.dispose()
     }
 
+    init {
+        refreshList()
+    }
+
     fun refreshList() {
         reduceEvent(Event.DataListLoading)
 
         disposable?.dispose()
-        disposable = dataRepository.getAllImage()
+        disposable = dataRepository.getImageWithFilter(searchText.value)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -69,20 +75,20 @@ class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
             }
             is Event.DataListLoadSuccess -> {
                 _state.postValue(State.DISPLAY)
-/*                _dataViewModelList.postValue(event.dataList.map { data ->
-                    DataViewModel(
-                        data,
-                        localDataSelectionCallback
-                    )
-                })*/
-
                 _dataViewModelList.value = event.imageList.map { data ->
                     ImageViewModel(
-                        data,
-                        localDataSelectionCallback
+                        data
                     )
                 }
             }
+        }
+    }
+
+    fun validateSelection() {
+        val selectedImage = _dataViewModelList.value?.filter { it.selected.value == true }?.map { it.image }
+        selectedImage?.let {
+            if(it.isNotEmpty())
+                localDataSelectionCallback.onDataSelected(it.first())
         }
     }
 
