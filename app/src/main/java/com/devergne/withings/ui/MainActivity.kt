@@ -26,8 +26,8 @@ class MainActivity : AppCompatActivity() {
     return navController.navigateUp() || super.onSupportNavigateUp()
   }
 
-  fun navigateToDetail(image : Image) {
-    val action = ListFragmentDirections.actionListFragmentToDetailFragment(image)
+  fun navigateToDetail(imageList: List<Image>) {
+    val action = ListFragmentDirections.actionListFragmentToDetailFragment(imageList.toTypedArray())
     findNavController(R.id.nav_host_fragment).navigate(action)
   }
 }

@@ -14,5 +14,5 @@ val sampleModule = module {
     single { PixabayDataRepository(PixabayImageConverter()) as ImageRepository }
 
     viewModel { ListViewModel(get())}
-    viewModel { (image: Image) -> DetailViewModel(image) }
+    viewModel { (imageList: List<Image>) -> DetailViewModel(imageList) }
 }

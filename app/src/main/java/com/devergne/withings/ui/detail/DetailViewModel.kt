@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.devergne.withings.data.Image
 
-class DetailViewModel(image : Image) : ViewModel() {
-    private val _data = MutableLiveData<Image>(image)
+class DetailViewModel(imageList : List<Image>) : ViewModel() {
+    private val _data = MutableLiveData<Image>(imageList.first())
     val image: LiveData<Image>
         get() = _data
 

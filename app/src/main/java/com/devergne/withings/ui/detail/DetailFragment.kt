@@ -13,7 +13,7 @@ import org.koin.core.parameter.parametersOf
 class DetailFragment : Fragment() {
 
     private val args : DetailFragmentArgs by navArgs()
-    private val detailViewModel : DetailViewModel by viewModel { parametersOf(args.image) }
+    private val detailViewModel : DetailViewModel by viewModel { parametersOf(args.imageList.toList()) }
 
 
     override fun onCreateView(

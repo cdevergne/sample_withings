@@ -30,11 +30,6 @@ class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
     private var disposable: Disposable? = null
 
     var imageSelectionCallback: ImageSelectionCallback? = null
-    private val localDataSelectionCallback = object : ImageSelectionCallback {
-        override fun onDataSelected(image: Image) {
-            imageSelectionCallback?.onDataSelected(image)
-        }
-    }
 
     val searchText = MutableLiveData<String>()
 
@@ -88,7 +83,7 @@ class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
         val selectedImage = _dataViewModelList.value?.filter { it.selected.value == true }?.map { it.image }
         selectedImage?.let {
             if(it.isNotEmpty())
-                localDataSelectionCallback.onDataSelected(it.first())
+                imageSelectionCallback?.onSelectionValidated(it)
         }
     }
 

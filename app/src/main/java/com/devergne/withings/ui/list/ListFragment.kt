@@ -15,8 +15,8 @@ class ListFragment : Fragment() {
     private val listViewModel : ListViewModel by viewModel()
 
     private val dataSelectionCallback = object : ImageSelectionCallback {
-        override fun onDataSelected(image: Image) {
-            (requireActivity() as MainActivity).navigateToDetail(image)
+        override fun onSelectionValidated(imageList: List<Image>) {
+            (requireActivity() as MainActivity).navigateToDetail(imageList)
         }
     }
 

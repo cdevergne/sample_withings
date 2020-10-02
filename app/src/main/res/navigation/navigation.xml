@@ -17,7 +17,7 @@
         android:name="com.devergne.withings.ui.detail.DetailFragment"
         android:label="DetailFragment">
         <argument
-            android:name="image"
-            app:argType="com.devergne.withings.data.Image"/>
+            android:name="imageList"
+            app:argType="com.devergne.withings.data.Image[]"/>
     </fragment>
 </navigation>
