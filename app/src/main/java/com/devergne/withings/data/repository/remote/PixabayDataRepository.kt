@@ -27,6 +27,13 @@ class PixabayDataRepository(private val pixabayImageConverter: PixabayImageConve
         fun fetchImageListWithFilter(
             @Query("q") filter : String?
         ): Single<PixabayResponse>
+
+        @GET("api/?key=5511001-7691b591d9508e60ec89b63c4")
+        fun fetchImageListWithFilter(
+            @Query("q") filter : String?,
+            @Query("page") page : Int,
+            @Query("per_page") itemsPerPage : Int
+        ): Single<PixabayResponse>
     }
 
     private val remoteDataApi = retrofit.create(RemoteDataApi::class.java)
@@ -40,4 +47,15 @@ class PixabayDataRepository(private val pixabayImageConverter: PixabayImageConve
         remoteDataApi.fetchImageListWithFilter(filter)
             .map { it.hits }
             .map { list -> list.map { pixabayImage -> pixabayImageConverter.convert(pixabayImage) } }
+
+    override fun getImageWithFilter(
+        filter: String?,
+        page: Int,
+        itemsPerPage: Int
+    ): Single<List<Image>> {
+        //pixabay pages starts at 1
+        return remoteDataApi.fetchImageListWithFilter(filter, page + 1, itemsPerPage)
+            .map { it.hits }
+            .map { list -> list.map { pixabayImage -> pixabayImageConverter.convert(pixabayImage) } }
+    }
 }

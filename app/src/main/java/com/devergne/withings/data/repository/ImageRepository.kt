@@ -10,4 +10,6 @@ interface ImageRepository {
      * @param filter providing a null string will request all image
      */
     fun getImageWithFilter(filter : String?) : Single<List<Image>>
+
+    fun getImageWithFilter(filter : String?, page : Int, itemsPerPage : Int) : Single<List<Image>>
 }

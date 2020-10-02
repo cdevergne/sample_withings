@@ -22,4 +22,11 @@ class FakeDataRepository : ImageRepository {
 
     override fun getImageWithFilter(filter: String?) = Single.just(images)
 
+    override fun getImageWithFilter(
+        filter: String?,
+        page: Int,
+        itemsPerPage: Int
+    ): Single<List<Image>> = Single.just(images)
+
+
 }

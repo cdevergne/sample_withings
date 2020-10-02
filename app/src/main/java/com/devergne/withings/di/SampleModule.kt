@@ -1,6 +1,7 @@
 package com.devergne.withings.di
 
 import com.devergne.withings.data.Image
+import com.devergne.withings.data.paging.ImagePagingRepository
 import com.devergne.withings.data.repository.ImageRepository
 import com.devergne.withings.data.repository.remote.PixabayDataRepository
 import com.devergne.withings.data.repository.remote.PixabayImageConverter
@@ -12,7 +13,8 @@ import org.koin.dsl.module
 val sampleModule = module {
 //    single { FakeDataRepository() as DataRepository }
     single { PixabayDataRepository(PixabayImageConverter()) as ImageRepository }
+    single { ImagePagingRepository(get())}
 
-    viewModel { ListViewModel(get())}
+    viewModel { ListViewModel(get(), get())}
     viewModel { (imageList: List<Image>) -> DetailViewModel(imageList) }
 }
