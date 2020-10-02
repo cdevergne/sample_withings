@@ -5,7 +5,7 @@ import io.reactivex.Single
 
 class FakeDataRepository : ImageRepository {
 
-    private val datas = listOf(
+    private val images = listOf(
         Image("thumbnailUrl1", "url1"),
         Image("thumbnailUrl2", "url2"),
         Image("thumbnailUrl3", "url3"),
@@ -18,8 +18,8 @@ class FakeDataRepository : ImageRepository {
         Image("thumbnailUrl10", "url10")
     )
 
-    override fun getAllImage(): Single<List<Image>> = Single.just(datas)
+    override fun getAllImage(): Single<List<Image>> = Single.just(images)
 
-    override fun getImageWithFilter(filter: String?) = Single.just(datas)
+    override fun getImageWithFilter(filter: String?) = Single.just(images)
 
 }

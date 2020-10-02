@@ -82,7 +82,7 @@ class ListViewModel(private val dataRepository: ImageRepository) : ViewModel() {
     fun validateSelection() {
         val selectedImage = _dataViewModelList.value?.filter { it.selected.value == true }?.map { it.image }
         selectedImage?.let {
-            if(it.isNotEmpty())
+            if(it.size >= 2)
                 imageSelectionCallback?.onSelectionValidated(it)
         }
     }

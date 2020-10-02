@@ -21,31 +21,31 @@ class ListViewModelTest {
     val rule = InstantTaskExecutorRule()
 
     @MockK
-    private lateinit var dataRepository: ImageRepository
+    private lateinit var imageRepository: ImageRepository
 
     private lateinit var listViewModel: ListViewModel
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        every { dataRepository.getImageWithFilter(any()) } returns Single.just(listOf())
-        listViewModel = ListViewModel(dataRepository)
-        clearMocks(dataRepository)
+        every { imageRepository.getImageWithFilter(any()) } returns Single.just(listOf())
+        listViewModel = ListViewModel(imageRepository)
+        clearMocks(imageRepository)
     }
 
     @Test
     fun `test refresh escalate call to repository`() {
 
-        every { dataRepository.getImageWithFilter(any()) } returns Single.just(listOf())
+        every { imageRepository.getImageWithFilter(any()) } returns Single.just(listOf())
 
         listViewModel.refreshList()
 
-        verify(exactly = 1) { dataRepository.getImageWithFilter(any()) }
+        verify(exactly = 1) { imageRepository.getImageWithFilter(any()) }
     }
 
     @Test
     fun `test wrapping model in viewModel`() {
-        every { dataRepository.getImageWithFilter(any()) } returns Single.just(
+        every { imageRepository.getImageWithFilter(any()) } returns Single.just(
             listOf(
                 mockk(),
                 mockk(),
@@ -60,7 +60,7 @@ class ListViewModelTest {
 
     @Test
     fun `test error status`() {
-        every { dataRepository.getImageWithFilter(any()) } returns Single.create { it.onError(RuntimeException())}
+        every { imageRepository.getImageWithFilter(any()) } returns Single.create { it.onError(RuntimeException())}
 
         listViewModel.refreshList()
 
@@ -69,7 +69,7 @@ class ListViewModelTest {
 
     @Test
     fun `test display status`() {
-        every { dataRepository.getImageWithFilter(any()) } returns Single.just(
+        every { imageRepository.getImageWithFilter(any()) } returns Single.just(
             listOf(
                 mockk(),
                 mockk(),
