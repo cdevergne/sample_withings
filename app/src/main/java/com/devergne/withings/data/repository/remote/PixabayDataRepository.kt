@@ -10,7 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-class PixabayDataRepository(private val pixabayImageConverter: PixabayImageConverter) : ImageRepository {
+class PixabayDataRepository(private val pixabayImageConverter: PixabayImageConverter) :
+    ImageRepository {
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://pixabay.com")
@@ -25,14 +26,14 @@ class PixabayDataRepository(private val pixabayImageConverter: PixabayImageConve
 
         @GET("api/?key=5511001-7691b591d9508e60ec89b63c4")
         fun fetchImageListWithFilter(
-            @Query("q") filter : String?
+            @Query("q") filter: String?
         ): Single<PixabayResponse>
 
         @GET("api/?key=5511001-7691b591d9508e60ec89b63c4")
         fun fetchImageListWithFilter(
-            @Query("q") filter : String?,
-            @Query("page") page : Int,
-            @Query("per_page") itemsPerPage : Int
+            @Query("q") filter: String?,
+            @Query("page") page: Int,
+            @Query("per_page") itemsPerPage: Int
         ): Single<PixabayResponse>
     }
 

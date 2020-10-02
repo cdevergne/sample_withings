@@ -5,61 +5,46 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
-import com.devergne.withings.BR
-import com.devergne.withings.R
-import com.devergne.withings.data.Image
-import com.devergne.withings.data.paging.ImagePagingRepository
-import com.devergne.withings.data.repository.ImageRepository
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.devergne.withings.ui.list.paging.ImageAdapter
+import com.devergne.withings.ui.list.paging.ImagePagingRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.tatarka.bindingcollectionadapter2.ItemBinding
 import timber.log.Timber
 
-class ListViewModel(private val dataRepository: ImageRepository, private val imagePagingRepository: ImagePagingRepository) : ViewModel() {
-
-    val itemBinding =
-        ItemBinding.of<ImageViewModel>(BR.viewModel, R.layout.image_item)
-
-    private val _dataViewModelList = MutableLiveData<List<ImageViewModel>>()
-    val dataViewModelList: LiveData<List<ImageViewModel>>
-        get() = _dataViewModelList
-
+class ListViewModel(
+    private val imagePagingRepository: ImagePagingRepository
+) : ViewModel() {
     private val _state = MutableLiveData<State>(State.LOADING)
     val state: LiveData<State>
         get() = _state
 
-
-    private var disposable: Disposable? = null
-
-    var imageSelectionCallback: ImageSelectionCallback? = null
+    var imageSelectionValidationCallback: ImageSelectionValidationCallback? = null
 
     val searchText = MutableLiveData<String>()
 
-    val imageAdapter = ImageAdapter()
+    var imageAdapter: ImageAdapter? = null
+        set(value) {
+            value?.let {
+                field = it
+                initStateListener()
+                search()
+            }
+        }
 
     private var searchJob: Job? = null
 
-    init {
-        //refreshList()
-        initStateListener()
-        search()
-    }
-
     override fun onCleared() {
         super.onCleared()
-        disposable?.dispose()
+        searchJob?.cancel()
     }
 
     private fun initStateListener() {
-        imageAdapter.addLoadStateListener { loadState ->
+        imageAdapter?.addLoadStateListener { loadState ->
             when (loadState.source.refresh) {
                 is LoadState.Error -> reduceEvent(Event.DataListLoadFailure)
                 is LoadState.Loading -> reduceEvent(Event.DataListLoading)
-                is LoadState.NotLoading -> reduceEvent(Event.DataListLoadSuccess(listOf()))
+                is LoadState.NotLoading -> reduceEvent(Event.DataListLoadSuccess)
             }
 
             val errorState = loadState.source.append as? LoadState.Error
@@ -76,56 +61,34 @@ class ListViewModel(private val dataRepository: ImageRepository, private val ima
         // Make sure we cancel the previous job before creating a new one
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            imagePagingRepository.getImagesStream().collect {
-                imageAdapter.submitData(it)
+            imagePagingRepository.getImagesStream(searchText.value).collect {
+                imageAdapter?.submitData(it)
+
             }
         }
     }
 
-
-    fun refreshList() {
-/*        reduceEvent(Event.DataListLoading)
-
-        disposable?.dispose()
-        disposable = dataRepository.getImageWithFilter("aa", 0, 150)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { reduceEvent(Event.DataListLoadSuccess(it)) },
-                {
-                    Timber.e("Error while refreshing list\n$it")
-                    reduceEvent(Event.DataListLoadFailure)
-                }
-            )*/
-    }
-
     private fun reduceEvent(event: Event) {
+        Timber.d("reduceEvent $event")
         when (event) {
             is Event.DataListLoading -> {
                 _state.postValue(State.LOADING)
-                _dataViewModelList.postValue(listOf())
             }
             is Event.DataListLoadFailure -> {
                 _state.postValue(State.ERROR)
-                _dataViewModelList.postValue(listOf())
             }
             is Event.DataListLoadSuccess -> {
                 _state.postValue(State.DISPLAY)
-              /*  _dataViewModelList.value = event.imageList.map { data ->
-                    ImageViewModel(
-                        data
-                    )
-                }*/
             }
         }
     }
 
     fun validateSelection() {
-        val selectedImage =
-            _dataViewModelList.value?.filter { it.selected.value == true }?.map { it.image }
-        selectedImage?.let {
-            if (it.size >= 2)
-                imageSelectionCallback?.onSelectionValidated(it)
+        imageAdapter?.let { imageAdapter ->
+            val selectedImage =
+                imageAdapter.snapshot().items.filter { it.selected.value == true }.map { it.image }
+            if (selectedImage.size >= 2)
+                imageSelectionValidationCallback?.onSelectionValidated(selectedImage)
         }
     }
 
@@ -136,7 +99,7 @@ class ListViewModel(private val dataRepository: ImageRepository, private val ima
     }
 
     private sealed class Event {
-        class DataListLoadSuccess(val imageList: List<Image>) : Event()
+        object DataListLoadSuccess : Event()
         object DataListLoadFailure : Event()
         object DataListLoading : Event()
     }

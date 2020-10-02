@@ -1,22 +1,26 @@
-package com.devergne.withings.data.paging
+package com.devergne.withings.ui.list.paging
 
 import androidx.paging.rxjava2.RxPagingSource
-import com.devergne.withings.data.Image
 import com.devergne.withings.data.repository.ImageRepository
+import com.devergne.withings.ui.list.ImageViewModel
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
 import java.io.IOException
 
 class ImageDataSource(
-    private val imageRepository: ImageRepository
-) : RxPagingSource<Int, Image>()
-{
-    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Image>> {
+    private val imageRepository: ImageRepository,
+    private val filter: String?
+) : RxPagingSource<Int, ImageViewModel>() {
+    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, ImageViewModel>> {
         val pageNumber = params.key ?: 0
-        return imageRepository.getImageWithFilter(null, page = pageNumber, itemsPerPage = params.loadSize)
+        return imageRepository.getImageWithFilter(
+            filter,
+            page = pageNumber,
+            itemsPerPage = params.loadSize
+        )
             .subscribeOn(Schedulers.io())
-            .map <LoadResult<Int, Image>> { result ->
+            .map<LoadResult<Int, ImageViewModel>> { result ->
                 // Since 0 is the lowest page number, return null to signify no more pages should
                 // be loaded before it.
                 val prevKey = if (pageNumber > 0) pageNumber - 1 else null
@@ -25,7 +29,7 @@ class ImageDataSource(
                 val nextKey = if (result.isNotEmpty()) pageNumber + 1 else null
 
                 LoadResult.Page(
-                    data = result,
+                    data = result.map { ImageViewModel(it) },
                     prevKey = prevKey,
                     nextKey = nextKey
                 )
