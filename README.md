@@ -15,8 +15,8 @@ Tech stack :
  * MockK
  * Glide
  * Retrofit
+ * Paging
  
  Next steps :
- * Manage multiple pages with Paging
  * Better UI
  * Refactor ListViewModel to allow selection and validation testing
